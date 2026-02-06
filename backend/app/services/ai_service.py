@@ -36,37 +36,68 @@ class AIService:
                 } for i in active_incidents])
 
             prompt = f"""
-            NexusAgent Triage Engine.
-            Issue: {text}
+            You are a Spam Detection and State Enforcement Agent for an IT Support Ticketing System.
+            Your responsibility is to identify spam tickets and immediately enforce a non-active system state.
+
+            User Issue: {text}
             Active Incidents: {incidents_str}
 
-            Task:
-            1. Triage: Priority (High/Med/Low), Dept (Network/Hardware/Software/Access), Sentiment (Calm/Frustrated/Angry).
-            2. Swarm Detection: If semantic similarity > 0.8 with an active incident, is_duplicate=true, parent_incident_id=matching_id.
-            3. Input Completeness:
-               - is_complete=true if text mentions app, system, or specific symptom.
-               - is_complete=false if too vague (e.g. "help", "not working").
-               - If false, provide ONE short clarification question.
-            4. Spam Detection:
-               - is_spam=true if text is gibberish, random chars, repeated symbols, or extremely short greetings with no intent (e.g. "hi").
-               - reason: "random_text | repeated_messages | no_intent | pattern_abuse"
+            ### SPAM DETECTION RULES
+            Classify a ticket as spam if it contains:
+            - Random or gibberish text
+            - Repeated characters or symbols
+            - No actionable IT intent
+            - Repeated submissions in short time
+
+            ### STATE ENFORCEMENT (CRITICAL)
+            If a ticket is classified as spam, you MUST:
+            1. Mark the ticket as spam (is_spam = true)
+            2. Immediately override ticket fields:
+               - status → "Cancelled"
+               - priority → "None"
+               - department → null
+               - sentiment → null
+               - is_active → false
+               - reason → "random_text | repeated_messages | no_intent"
+
+            ### LEGITIMATE TICKET TRIAGE
+            If NOT SPAM:
+            - is_spam = false
+            - is_active = true
+            - status = ("Waiting" if info missing, else "Processing")
+            - priority = High | Medium | Low
+            - department = Network | Hardware | Software | Access
+            - sentiment = Calm | Frustrated | Angry
+            - Swarm Detection: If similarity > 0.8 with an active incident, is_duplicate=true.
+
+            ### HUMAN HANDOFF SUMMARY
+            Generate a structured summary for a human agent:
+            - handoff_summary: Short, technical description of the core problem.
+            - ai_attempts: What the AI system has checked/performed (e.g., "Classified as Network issue, checked for duplicates, sentiment analyzed").
+            - next_best_action: Logical next step for a human (e.g., "Verify router connectivity", "Reset user password").
 
             Output JSON MUST follow this schema:
             {{
+              "is_spam": true | false,
+              "enforced": true | false,
+              "final_status": "Cancelled | Waiting | Processing",
+              "reason": "reason | null",
               "summary": "1-sentence",
+              "handoff_summary": "structured summary",
+              "ai_attempts": "actions taken",
+              "next_best_action": "step for human",
               "category": "category",
-              "priority": "High | Medium | Low",
-              "department": "Network | Hardware | Software | Access",
-              "sentiment": "Calm | Frustrated | Angry",
+              "priority": "High | Medium | Low | None",
+              "department": "Network | Hardware | Software | Access | null",
+              "sentiment": "Calm | Frustrated | Angry | null",
+              "is_active": true | false,
+              "is_complete": true | false,
+              "clarification_question": "question | null",
               "is_duplicate": true | false,
               "parent_incident_id": "TICK-ID | null",
               "ticket_role": "Primary | Follower",
               "similarity_score": 0-100,
-              "swarm_reason": "why",
-              "is_complete": true | false,
-              "clarification_question": "question | null",
-              "is_spam": true | false,
-              "spam_reason": "reason | null"
+              "swarm_reason": "why"
             }}
             """
             
@@ -105,18 +136,26 @@ class AIService:
             spam_reason = "random_text"
 
         return {
+            "is_spam": is_spam,
+            "enforced": is_spam,
+            "final_status": "Cancelled" if is_spam else "Processing",
+            "reason": spam_reason,
             "summary": f"Review Required: {text[:50]}...",
+            "handoff_summary": "Manual review of detected issue." if not is_spam else "Spam identified and blocked.",
+            "ai_attempts": "Demo fallback used. Basic pattern matching performed." if not is_spam else "Spam detection patterns applied.",
+            "next_best_action": "Verify user details and technical context." if not is_spam else "No further action needed.",
             "category": "Other",
-            "priority": "Medium",
-            "department": "Software",
-            "sentiment": "Calm",
-            "confidence_score": 0.5,
-            "similarity_score": 0,
-            "swarm_reason": None,
+            "priority": "None" if is_spam else "Medium",
+            "department": None if is_spam else "Software",
+            "sentiment": None if is_spam else "Calm",
+            "is_active": not is_spam,
             "is_complete": True,
             "clarification_question": None,
-            "is_spam": is_spam,
-            "spam_reason": spam_reason
+            "is_duplicate": False,
+            "parent_incident_id": None,
+            "ticket_role": "Primary",
+            "similarity_score": 0,
+            "swarm_reason": None
         }
 
 ai_service = AIService()

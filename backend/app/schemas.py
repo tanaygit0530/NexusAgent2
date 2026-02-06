@@ -10,6 +10,7 @@ class TicketStatus(str, Enum):
     RESOLVED = "Resolved"
     WAITING = "Waiting"
     SPAM = "Spam"
+    CANCELLED = "Cancelled"
 
 class TicketSource(str, Enum):
     WHATSAPP = "WhatsApp"
@@ -36,6 +37,11 @@ class AIExtractionResult(BaseModel):
     # Spam Detection
     is_spam: Optional[bool] = False
     spam_reason: Optional[str] = None
+    is_active: Optional[bool] = True
+    # Human Handoff Summary
+    handoff_summary: Optional[str] = None
+    ai_attempts: Optional[str] = None
+    next_best_action: Optional[str] = None
 
 class TicketCreate(BaseModel):
     source: TicketSource
@@ -66,8 +72,17 @@ class TicketResponse(BaseModel):
     # Spam Detection in response
     is_spam: Optional[str] = "false"
     spam_reason: Optional[str] = None
-    sentiment: str
-    status: str
+    is_active: Optional[str] = "true"
+    # Human Handoff Summary in response
+    handoff_summary: Optional[str] = None
+    ai_attempts: Optional[str] = None
+    next_best_action: Optional[str] = None
+    sentiment: Optional[str] = "Neutral"
+    status: Optional[str] = "Received"
+    # Admin Workspace fields
+    assigned_to: Optional[str] = None
+    assigned_at: Optional[datetime] = None
+    resolved_at: Optional[datetime] = None
     created_at: datetime
     ai_raw_output: Optional[str] = None
     validation_errors: Optional[str] = None

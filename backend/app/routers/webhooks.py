@@ -43,7 +43,7 @@ async def whatsapp_webhook(
             "sentiment": "Neutral"
         }
     
-    ticket = TicketService.create_ticket(db, ticket_data, ai_result, raw_output, errors)
+    ticket = await TicketService.create_ticket(db, ticket_data, ai_result, raw_output, errors)
     
     return {
         "status": "success",
@@ -86,7 +86,7 @@ async def email_webhook(
             "sentiment": "Neutral"
         }
         
-    ticket = TicketService.create_ticket(db, ticket_data, ai_result, raw_output, errors)
+    ticket = await TicketService.create_ticket(db, ticket_data, ai_result, raw_output, errors)
     
     return {
         "status": "success", 
@@ -133,7 +133,7 @@ async def intake_endpoint(
             "sentiment": "Neutral"
         }
     
-    ticket = TicketService.create_ticket(db, ticket_data, ai_result, raw_output, errors)
+    ticket = await TicketService.create_ticket(db, ticket_data, ai_result, raw_output, errors)
     
     return {
         "status": "success",

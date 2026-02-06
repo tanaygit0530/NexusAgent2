@@ -10,6 +10,7 @@ class TicketStatus(str, enum.Enum):
     RESOLVED = "Resolved"
     WAITING = "Waiting"
     SPAM = "Spam"
+    CANCELLED = "Cancelled"
 
 class TicketSource(str, enum.Enum):
     WHATSAPP = "WhatsApp"
@@ -46,10 +47,22 @@ class Ticket(Base):
     # Spam Detection
     is_spam = Column(String, default="false") # "true" or "false"
     spam_reason = Column(String, nullable=True)
+    is_active = Column(String, default="true") # "true" or "false"
     
     sentiment = Column(String)
     
+    # Human Handoff Summary
+    handoff_summary = Column(Text, nullable=True)
+    ai_attempts = Column(Text, nullable=True)
+    next_best_action = Column(Text, nullable=True)
+    
     status = Column(String, default=TicketStatus.RECEIVED)
+    
+    # Admin Workspace - Assignment Tracking
+    assigned_to = Column(String, nullable=True)  # Admin username/email
+    assigned_at = Column(DateTime, nullable=True)  # When ticket was assigned
+    resolved_at = Column(DateTime, nullable=True)  # When ticket was resolved
+    
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     
