@@ -19,6 +19,10 @@ export const ticketService = {
     const response = await api.patch(`/tickets/${ticketId}/status`, { status });
     return response.data;
   },
+  updateDepartment: async (ticketId: string, department: string) => {
+    const response = await api.patch(`/tickets/${ticketId}/department`, { department });
+    return response.data;
+  },
   exportExcel: () => {
     window.open(`${API_BASE_URL}/analytics/export`, '_blank');
   }

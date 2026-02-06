@@ -5,7 +5,10 @@ import {
   Filter,
   Search,
   ExternalLink,
-  Globe
+  Globe,
+  AlertTriangle,
+  Zap,
+  UserCheck
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ticketService } from '../services/api';
@@ -28,9 +31,16 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
   const handleStatusChange = async (ticketId: string, status: string) => {
     try {
       await ticketService.updateStatus(ticketId, status);
-      // In a real app we'd trigger a reload or update local state
     } catch (error) {
        console.error("Failed to update status", error);
+    }
+  };
+
+  const handleDepartmentChange = async (ticketId: string, department: string) => {
+    try {
+      await ticketService.updateDepartment(ticketId, department);
+    } catch (error) {
+       console.error("Failed to update department", error);
     }
   };
 
@@ -115,9 +125,34 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100 uppercase tracking-tighter">
-                    {ticket.department || 'N/A'}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <select 
+                      value={ticket.department || 'Software'}
+                      onChange={(e) => handleDepartmentChange(ticket.ticket_id, e.target.value)}
+                      className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full border border-indigo-100 uppercase tracking-tighter outline-none focus:ring-1 focus:ring-indigo-400"
+                    >
+                      {['Network', 'Hardware', 'Software', 'Access'].map(dept => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                    <div className="flex items-center gap-1">
+                      {ticket.is_flagged === "true" && (
+                        <span className="flex items-center gap-0.5 text-[8px] font-bold text-red-500 bg-red-50 px-1 rounded uppercase">
+                          <AlertTriangle size={8} /> Flagged
+                        </span>
+                      )}
+                      {ticket.reassigned_by === "AI" && (
+                        <span className="flex items-center gap-0.5 text-[8px] font-bold text-amber-500 bg-amber-50 px-1 rounded uppercase">
+                          <Zap size={8} /> Rerouted
+                        </span>
+                      )}
+                      {ticket.reassigned_by === "Human" && (
+                        <span className="flex items-center gap-0.5 text-[8px] font-bold text-blue-500 bg-blue-50 px-1 rounded uppercase">
+                          <UserCheck size={8} /> Verified
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-tight ${

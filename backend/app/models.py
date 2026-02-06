@@ -26,6 +26,9 @@ class Ticket(Base):
     category = Column(String)
     priority = Column(String) # Low, Medium, High, Critical
     department = Column(String) # Network, Hardware, Software, Access
+    department_confidence = Column(Integer, default=100)
+    is_flagged = Column(String, default="false") # "true" or "false"
+    reassigned_by = Column(String, nullable=True) # "AI" or "Human"
     sentiment = Column(String)
     
     status = Column(String, default=TicketStatus.RECEIVED)

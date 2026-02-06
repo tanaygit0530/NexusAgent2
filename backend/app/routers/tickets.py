@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, Body
 from sqlalchemy.orm import Session
 from typing import List
 from ..database import get_db
@@ -23,21 +23,33 @@ def get_stats(db: Session = Depends(get_db)):
 def get_ticket(ticket_id: str, db: Session = Depends(get_db)):
     ticket = db.query(models.Ticket).filter(models.Ticket.ticket_id == ticket_id).first()
     if not ticket:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Ticket not found")
     return ticket
 
 @router.patch("/{ticket_id}/status")
-def update_status(
-    ticket_id: str,
-    status: schemas.TicketStatus,
-    db: Session = Depends(get_db)
-):
+async def update_status(ticket_id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    status = payload.get("status")
+    if not status:
+        raise HTTPException(status_code=400, detail="Status is required")
     ticket = db.query(models.Ticket).filter(models.Ticket.ticket_id == ticket_id).first()
     if not ticket:
-        return {"error": "Ticket not found"}
-    
-    ticket.status = status.value
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    ticket.status = status
     db.commit()
-    db.refresh(ticket)
+    return ticket
+
+@router.patch("/{ticket_id}/department")
+async def update_department(ticket_id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    department = payload.get("department")
+    if not department:
+        raise HTTPException(status_code=400, detail="Department is required")
+    
+    ticket = db.query(models.Ticket).filter(models.Ticket.ticket_id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    ticket.department = department
+    ticket.reassigned_by = "Human"
+    ticket.is_flagged = "false" # Clear flag if reassigned manually
+    db.commit()
     return ticket

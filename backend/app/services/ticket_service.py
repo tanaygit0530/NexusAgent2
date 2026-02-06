@@ -17,6 +17,9 @@ class TicketService:
             category=ai_data.get("category", "Uncategorized"),
             priority=ai_data.get("priority", "Medium"),
             department=ai_data.get("department", "Software"),
+            department_confidence=ai_data.get("department_confidence", 100),
+            is_flagged=ai_data.get("is_flagged", "false"),
+            reassigned_by=ai_data.get("reassigned_by"),
             sentiment=ai_data.get("sentiment", "Calm"),
             status=models.TicketStatus.PROCESSING, # Start at processing as AI has run
             ai_raw_output=raw_output,

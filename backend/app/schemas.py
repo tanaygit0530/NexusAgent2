@@ -21,6 +21,10 @@ class AIExtractionResult(BaseModel):
     department: str = Field(..., description="Department: Network, Hardware, Software, Access")
     sentiment: str = Field(..., description="User sentiment: Calm, Frustrated, Angry")
     confidence_score: float = Field(default=1.0)
+    # Validation fields
+    is_misrouted: Optional[bool] = False
+    correct_department: Optional[str] = None
+    action: Optional[str] = "keep" # reroute | keep | flag_for_human
 
 class TicketCreate(BaseModel):
     source: TicketSource
@@ -36,6 +40,9 @@ class TicketResponse(BaseModel):
     category: str
     priority: str
     department: Optional[str] = None
+    department_confidence: Optional[int] = 100
+    is_flagged: Optional[str] = "false"
+    reassigned_by: Optional[str] = None
     sentiment: str
     status: str
     created_at: datetime

@@ -70,15 +70,75 @@ class AIService:
                 raise Exception("AI Request Timed Out")
             
             result_json = json.loads(response.text)
-            validated_result = AIExtractionResult(**result_json)
-            print("DEBUG: API Extraction Successful")
-            return validated_result.model_dump(), response.text, None
+            
+            # --- Department Validation Agent ---
+            validated_result = await self.validate_department(text, result_json)
+            
+            print("DEBUG: API Extraction + Validation Successful")
+            return validated_result, response.text, None
             
         except Exception as e:
             print(f"DEBUG: AI Extraction Error: {str(e)}")
             logging.error(f"AI Extraction Error: {str(e)}")
             # FAIL-SAFE: Return something so the ticket is still created
             return self._get_demo_data(text), "API_ERROR_FALLBACK", f"AI Error: {str(e)}"
+
+    async def validate_department(self, text: str, initial_result: dict):
+        """
+        Validates the department assignment using a secondary AI pass or rule check.
+        """
+        import asyncio
+        prompt = f"""
+        You are a Department Validation Engine.
+        
+        Issue: {text}
+        AI-assigned Department: {initial_result.get('department')}
+        
+        Rules:
+        - Validate department using keyword-rule mapping:
+          - Network: Internet, WiFi, VPN, connectivity
+          - Hardware: Laptop, physical device
+          - Software: Apps, website, OS bugs
+          - Access: Login, password, permissions
+        - If high-confidence mismatch -> auto-reroute
+        - If low-confidence mismatch -> keep department but flag
+        
+        Output (JSON ONLY):
+        {{
+          "is_misrouted": true | false,
+          "correct_department": "Network | Hardware | Software | Access",
+          "confidence": 0.0 - 1.0,
+          "action": "reroute | keep | flag_for_human"
+        }}
+        """
+        try:
+            response = await asyncio.wait_for(
+                self.model.generate_content_async(
+                    prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        response_mime_type="application/json",
+                    )
+                ),
+                timeout=5.0
+            )
+            validation_data = json.loads(response.text)
+            
+            # Update initial result based on validation
+            if validation_data.get("action") == "reroute":
+                initial_result["department"] = validation_data.get("correct_department")
+                initial_result["reassigned_by"] = "AI"
+                initial_result["department_confidence"] = int(validation_data.get("confidence", 0) * 100)
+            elif validation_data.get("action") == "flag_for_human":
+                initial_result["is_flagged"] = "true"
+                initial_result["department_confidence"] = int(validation_data.get("confidence", 0) * 100)
+            else:
+                initial_result["is_flagged"] = "false"
+                initial_result["department_confidence"] = int(validation_data.get("confidence", 1.0) * 100)
+                
+            return initial_result
+        except Exception as e:
+            print(f"DEBUG: Validation Error skip: {str(e)}")
+            return initial_result
 
     def _get_demo_data(self, text: str):
         return {
