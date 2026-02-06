@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pydantic-settings
+google-generativeai
+python-multipart
+pandas
+openpyxl
+python-dotenv
+httpx
+jinja2
+python-slugify

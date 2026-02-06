@@ -1,0 +1,65 @@
+{
+  "name": "NexusAgent WhatsApp Triage",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-webhook",
+        "options": {}
+      },
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:8000/webhooks/whatsapp",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"from\": \"{{ $json.body.from }}\",\n  \"body\": \"{{ $json.body.body }}\"\n}",
+        "options": {}
+      },
+      "name": "Post to NexusAgent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [300, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"WhatsApp Trigger\"].json[\"body\"][\"from\"] }}",
+        "text": "={{ $json[\"acknowledgment_message\"] }}",
+        "additionalFields": {}
+      },
+      "name": "WhatsApp Reply",
+      "type": "n8n-nodes-base.whatsapp",
+      "typeVersion": 1,
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Post to NexusAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to NexusAgent": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
