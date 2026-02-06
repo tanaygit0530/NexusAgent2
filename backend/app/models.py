@@ -8,6 +8,8 @@ class TicketStatus(str, enum.Enum):
     PROCESSING = "Processing"
     UNDER_REVIEW = "Under Review"
     RESOLVED = "Resolved"
+    WAITING = "Waiting"
+    SPAM = "Spam"
 
 class TicketSource(str, enum.Enum):
     WHATSAPP = "WhatsApp"
@@ -29,6 +31,22 @@ class Ticket(Base):
     department_confidence = Column(Integer, default=100)
     is_flagged = Column(String, default="false") # "true" or "false"
     reassigned_by = Column(String, nullable=True) # "AI" or "Human"
+    
+    # Incident Swarm Detection
+    is_duplicate = Column(String, default="false")
+    parent_incident_id = Column(String, nullable=True)
+    ticket_role = Column(String, default="Primary") # Primary | Follower
+    similarity_score = Column(Integer, default=0)
+    swarm_reason = Column(Text, nullable=True)
+    
+    # Input Completeness
+    is_complete = Column(String, default="true") # "true" or "false"
+    clarification_question = Column(Text, nullable=True)
+    
+    # Spam Detection
+    is_spam = Column(String, default="false") # "true" or "false"
+    spam_reason = Column(String, nullable=True)
+    
     sentiment = Column(String)
     
     status = Column(String, default=TicketStatus.RECEIVED)

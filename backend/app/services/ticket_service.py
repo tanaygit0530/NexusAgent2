@@ -20,8 +20,19 @@ class TicketService:
             department_confidence=ai_data.get("department_confidence", 100),
             is_flagged=ai_data.get("is_flagged", "false"),
             reassigned_by=ai_data.get("reassigned_by"),
+            is_duplicate=str(ai_data.get("is_duplicate", False)).lower(),
+            parent_incident_id=ai_data.get("parent_incident_id"),
+            ticket_role=ai_data.get("ticket_role", "Primary"),
+            similarity_score=ai_data.get("similarity_score", 0),
+            swarm_reason=ai_data.get("swarm_reason"),
+            is_complete=str(ai_data.get("is_complete", True)).lower(),
+            clarification_question=ai_data.get("clarification_question"),
+            is_spam=str(ai_data.get("is_spam", False)).lower(),
+            spam_reason=ai_data.get("spam_reason"),
             sentiment=ai_data.get("sentiment", "Calm"),
-            status=models.TicketStatus.PROCESSING, # Start at processing as AI has run
+            status=models.TicketStatus.SPAM if str(ai_data.get("is_spam", "false")).lower() == "true" 
+                   else (models.TicketStatus.WAITING if str(ai_data.get("is_complete", "true")).lower() == "false" 
+                         else models.TicketStatus.PROCESSING),
             ai_raw_output=raw_output,
             validation_errors=validation_errors
         )
@@ -36,12 +47,19 @@ class TicketService:
         return db.query(models.Ticket).order_by(models.Ticket.created_at.desc()).offset(skip).limit(limit).all()
 
     @staticmethod
+    def get_active_incidents(db: Session):
+        return db.query(models.Ticket).filter(
+            models.Ticket.status.in_([models.TicketStatus.RECEIVED, models.TicketStatus.PROCESSING, models.TicketStatus.UNDER_REVIEW]),
+            models.Ticket.ticket_role == "Primary"
+        ).all()
+
+    @staticmethod
     def get_ticket_stats(db: Session):
         tickets = db.query(models.Ticket).all()
         
         by_priority = {"Low": 0, "Medium": 0, "High": 0, "Critical": 0}
         by_source = {"WhatsApp": 0, "Email": 0, "Website": 0}
-        by_status = {"Received": 0, "Processing": 0, "Under Review": 0, "Resolved": 0}
+        by_status = {"Received": 0, "Processing": 0, "Under Review": 0, "Resolved": 0, "Waiting": 0, "Spam": 0}
         
         for t in tickets:
             by_priority[t.priority] = by_priority.get(t.priority, 0) + 1

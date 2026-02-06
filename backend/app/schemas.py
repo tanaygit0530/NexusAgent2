@@ -8,6 +8,8 @@ class TicketStatus(str, Enum):
     PROCESSING = "Processing"
     UNDER_REVIEW = "Under Review"
     RESOLVED = "Resolved"
+    WAITING = "Waiting"
+    SPAM = "Spam"
 
 class TicketSource(str, Enum):
     WHATSAPP = "WhatsApp"
@@ -21,10 +23,19 @@ class AIExtractionResult(BaseModel):
     department: str = Field(..., description="Department: Network, Hardware, Software, Access")
     sentiment: str = Field(..., description="User sentiment: Calm, Frustrated, Angry")
     confidence_score: float = Field(default=1.0)
-    # Validation fields
-    is_misrouted: Optional[bool] = False
-    correct_department: Optional[str] = None
     action: Optional[str] = "keep" # reroute | keep | flag_for_human
+    # Swarm Detection
+    is_duplicate: Optional[bool] = False
+    parent_incident_id: Optional[str] = None
+    ticket_role: Optional[str] = "Primary"
+    similarity_score: Optional[float] = 0.0
+    swarm_reason: Optional[str] = None
+    # Input Completeness
+    is_complete: Optional[bool] = True
+    clarification_question: Optional[str] = None
+    # Spam Detection
+    is_spam: Optional[bool] = False
+    spam_reason: Optional[str] = None
 
 class TicketCreate(BaseModel):
     source: TicketSource
@@ -43,6 +54,18 @@ class TicketResponse(BaseModel):
     department_confidence: Optional[int] = 100
     is_flagged: Optional[str] = "false"
     reassigned_by: Optional[str] = None
+    # Swarm Detection in response
+    is_duplicate: Optional[str] = "false"
+    parent_incident_id: Optional[str] = None
+    ticket_role: Optional[str] = "Primary"
+    similarity_score: Optional[int] = 0
+    swarm_reason: Optional[str] = None
+    # Input Completeness in response
+    is_complete: Optional[str] = "true"
+    clarification_question: Optional[str] = None
+    # Spam Detection in response
+    is_spam: Optional[str] = "false"
+    spam_reason: Optional[str] = None
     sentiment: str
     status: str
     created_at: datetime

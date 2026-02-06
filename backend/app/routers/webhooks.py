@@ -31,7 +31,9 @@ async def whatsapp_webhook(
     )
     
     # Process with AI
-    ai_result, raw_output, errors = await ai_service.analyze_issue(message)
+    active_incidents = TicketService.get_active_incidents(db)
+    active_incidents_data = [{"ticket_id": t.ticket_id, "summary": t.summary, "status": t.status} for t in active_incidents]
+    ai_result, raw_output, errors = await ai_service.analyze_issue(message, active_incidents_data)
     
     if not ai_result:
         ai_result = {
@@ -72,7 +74,9 @@ async def email_webhook(
     )
     
     # Process with AI
-    ai_result, raw_output, errors = await ai_service.analyze_issue(full_message)
+    active_incidents = TicketService.get_active_incidents(db)
+    active_incidents_data = [{"ticket_id": t.ticket_id, "summary": t.summary, "status": t.status} for t in active_incidents]
+    ai_result, raw_output, errors = await ai_service.analyze_issue(full_message, active_incidents_data)
     
     if not ai_result:
         ai_result = {
@@ -117,7 +121,9 @@ async def intake_endpoint(
     )
     
     # Process with AI
-    ai_result, raw_output, errors = await ai_service.analyze_issue(message)
+    active_incidents = TicketService.get_active_incidents(db)
+    active_incidents_data = [{"ticket_id": t.ticket_id, "summary": t.summary, "status": t.status} for t in active_incidents]
+    ai_result, raw_output, errors = await ai_service.analyze_issue(message, active_incidents_data)
     
     if not ai_result:
         ai_result = {

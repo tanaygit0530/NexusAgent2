@@ -8,7 +8,11 @@ import {
   Globe,
   AlertTriangle,
   Zap,
-  UserCheck
+  UserCheck,
+  Link,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldOff
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ticketService } from '../services/api';
@@ -20,12 +24,21 @@ interface TicketListProps {
 const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSource, setFilterSource] = useState('All');
+  const [filterStatus, setFilterStatus] = useState('Active'); // Active, Spam, All
 
   const filteredTickets = tickets.filter(ticket => {
     const matchesSearch = ticket.summary.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          ticket.ticket_id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSource = filterSource === 'All' || ticket.source === filterSource;
-    return matchesSearch && matchesSource;
+    
+    let matchesStatus = true;
+    if (filterStatus === 'Active') {
+      matchesStatus = ticket.status !== 'Spam';
+    } else if (filterStatus === 'Spam') {
+      matchesStatus = ticket.status === 'Spam';
+    }
+    
+    return matchesSearch && matchesSource && matchesStatus;
   });
 
   const handleStatusChange = async (ticketId: string, status: string) => {
@@ -60,6 +73,20 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
         </div>
         
         <div className="flex items-center gap-3">
+          <div className="flex bg-gray-100 p-1 rounded-lg">
+            {['Active', 'Spam', 'All Status'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilterStatus(status.split(' ')[0])}
+                className={`px-3 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-tight transition-all ${
+                  (filterStatus === status.split(' ')[0]) ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+          
           <div className="flex bg-gray-100 p-1 rounded-lg">
             {['All', 'WhatsApp', 'Email', 'Website'].map((source) => (
               <button
@@ -113,8 +140,23 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
                       <div className="text-sm font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
                         {ticket.summary}
                       </div>
-                      <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-tight font-medium">
-                        Opened {format(new Date(ticket.created_at), 'MMM dd, HH:mm')}
+                      {ticket.is_complete === "false" && ticket.clarification_question && (
+                        <div className="text-[10px] text-red-500 font-bold bg-red-50 px-1.5 py-0.5 rounded mt-1 flex items-center gap-1 italic border border-red-100 w-fit">
+                          <MessageSquare size={8} /> Needs Info: {ticket.clarification_question}
+                        </div>
+                      )}
+                      {ticket.is_spam === "true" && (
+                        <div className="text-[10px] text-gray-500 font-bold bg-gray-100 px-1.5 py-0.5 rounded mt-1 flex items-center gap-1 uppercase border border-gray-200 w-fit">
+                          <ShieldOff size={8} /> Spam: {ticket.spam_reason || 'Filtered'}
+                        </div>
+                      )}
+                      <div className="text-[10px] text-gray-500 mt-1 uppercase tracking-tight font-medium flex items-center gap-2">
+                        <span>Opened {format(new Date(ticket.created_at), 'MMM dd, HH:mm')}</span>
+                        {ticket.is_duplicate === "true" && (
+                          <span className="flex items-center gap-0.5 text-amber-600 font-bold bg-amber-50 px-1 rounded">
+                            <Link size={10} /> {ticket.parent_incident_id} ({ticket.similarity_score}%)
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -155,14 +197,25 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-tight ${
-                    ticket.priority === 'Critical' ? 'bg-red-100 text-red-700' :
-                    ticket.priority === 'High' ? 'bg-orange-100 text-orange-700' :
-                    ticket.priority === 'Medium' ? 'bg-blue-100 text-blue-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {ticket.priority}
-                  </span>
+                  <div className="flex flex-col gap-1">
+                    <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-tight flex items-center justify-center gap-1 ${
+                      ticket.priority === 'Critical' ? 'bg-red-100 text-red-700' :
+                      ticket.priority === 'High' ? 'bg-orange-100 text-orange-700' :
+                      ticket.priority === 'Medium' ? 'bg-blue-100 text-blue-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      {ticket.priority}
+                    </span>
+                    {ticket.ticket_role === "Primary" ? (
+                      <span className="flex items-center gap-0.5 text-[8px] font-bold text-green-600 bg-green-50 px-1 rounded uppercase self-center">
+                        <ShieldCheck size={8} /> Primary
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-0.5 text-[8px] font-bold text-blue-600 bg-blue-50 px-1 rounded uppercase self-center">
+                        <ShieldAlert size={8} /> Follower
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4">
                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
@@ -181,6 +234,8 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
                   >
                     <option value="Received">Received</option>
                     <option value="Processing">Processing</option>
+                    <option value="Waiting">Waiting</option>
+                    <option value="Spam">Spam</option>
                     <option value="Under Review">Under Review</option>
                     <option value="Resolved">Resolved</option>
                   </select>
