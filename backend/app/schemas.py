@@ -83,6 +83,7 @@ class TicketResponse(BaseModel):
     assigned_to: Optional[str] = None
     assigned_at: Optional[datetime] = None
     resolved_at: Optional[datetime] = None
+    internal_notes: Optional[str] = None
     created_at: datetime
     ai_raw_output: Optional[str] = None
     validation_errors: Optional[str] = None

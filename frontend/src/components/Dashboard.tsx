@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   CheckCircle2, 
   Clock, 
@@ -6,7 +6,8 @@ import {
   BarChart3,
   Mail,
   MessageSquare,
-  Globe
+  Globe,
+  Filter
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -16,7 +17,14 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ stats, tickets }) => {
+  const [priorityFilter, setPriorityFilter] = useState<string>('All');
+  
   const totalTickets = Object.values(stats.by_status).reduce((a, b) => (a as number) + (b as number), 0) as number;
+  
+  // Filter tickets by priority
+  const filteredTickets = priorityFilter === 'All' 
+    ? tickets 
+    : tickets.filter(t => t.priority === priorityFilter);
   
   return (
     <div className="space-y-8">
@@ -35,24 +43,22 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tickets }) => {
         
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-yellow-50 text-yellow-600 rounded-lg">
+            <div className="p-2 bg-orange-50 text-orange-600 rounded-lg">
               <Clock size={24} />
             </div>
           </div>
-          <p className="text-gray-500 text-sm font-medium">Processing</p>
-          <h3 className="text-2xl font-bold text-gray-900 mt-1">{stats.by_status['Processing'] || 0}</h3>
+          <p className="text-gray-500 text-sm font-medium">Needs Info</p>
+          <h3 className="text-2xl font-bold text-gray-900 mt-1">{stats.by_status['Waiting'] || 0}</h3>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-red-50 text-red-600 rounded-lg">
+            <div className="p-2 bg-gray-50 text-gray-600 rounded-lg">
               <AlertCircle size={24} />
             </div>
           </div>
-          <p className="text-gray-500 text-sm font-medium">High/Critical</p>
-          <h3 className="text-2xl font-bold text-gray-900 mt-1">
-            {(stats.by_priority['High'] || 0) + (stats.by_priority['Critical'] || 0)}
-          </h3>
+          <p className="text-gray-500 text-sm font-medium">Filtered Spam</p>
+          <h3 className="text-2xl font-bold text-gray-900 mt-1">{stats.by_status['Spam'] || 0}</h3>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
@@ -69,12 +75,31 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tickets }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Tickets */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-            <h3 className="font-bold text-gray-900 text-lg">Recent Tickets</h3>
-            <button className="text-primary-600 text-sm font-semibold hover:text-primary-700">View All</button>
+          <div className="p-6 border-b border-gray-50">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-900 text-lg">Recent Tickets</h3>
+              <button className="text-primary-600 text-sm font-semibold hover:text-primary-700">View All</button>
+            </div>
+            {/* Priority Filter Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Filter size={16} className="text-gray-400" />
+              {['All', 'Critical', 'High', 'Medium', 'Low'].map((priority) => (
+                <button
+                  key={priority}
+                  onClick={() => setPriorityFilter(priority)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    priorityFilter === priority
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {priority}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="divide-y divide-gray-50">
-            {tickets.length > 0 ? tickets.map((ticket) => (
+            {filteredTickets.length > 0 ? filteredTickets.map((ticket) => (
               <div key={ticket.ticket_id} className="p-6 hover:bg-gray-50 transition-colors cursor-pointer group">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex gap-4">

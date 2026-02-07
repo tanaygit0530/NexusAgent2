@@ -23,6 +23,10 @@ export const ticketService = {
     const response = await api.patch(`/tickets/${ticketId}/department`, { department });
     return response.data;
   },
+  assignTicket: async (ticketId: string, adminName: string) => {
+    const response = await api.patch(`/tickets/${ticketId}/assign`, { admin_name: adminName });
+    return response.data;
+  },
   exportExcel: () => {
     window.open(`${API_BASE_URL}/analytics/export`, '_blank');
   }

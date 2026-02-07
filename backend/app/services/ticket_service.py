@@ -77,7 +77,22 @@ class TicketService:
 
     @staticmethod
     def get_tickets(db: Session, skip: int = 0, limit: int = 100):
-        return db.query(models.Ticket).order_by(models.Ticket.created_at.desc()).offset(skip).limit(limit).all()
+        from sqlalchemy import case
+        
+        # Define priority order: Critical=1, High=2, Medium=3, Low=4, others=5
+        priority_order = case(
+            (models.Ticket.priority == "Critical", 1),
+            (models.Ticket.priority == "High", 2),
+            (models.Ticket.priority == "Medium", 3),
+            (models.Ticket.priority == "Low", 4),
+            else_=5
+        )
+        
+        return db.query(models.Ticket)\
+            .order_by(priority_order, models.Ticket.created_at.desc())\
+            .offset(skip)\
+            .limit(limit)\
+            .all()
 
     @staticmethod
     def get_active_incidents(db: Session):

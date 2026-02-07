@@ -62,6 +62,7 @@ class Ticket(Base):
     assigned_to = Column(String, nullable=True)  # Admin username/email
     assigned_at = Column(DateTime, nullable=True)  # When ticket was assigned
     resolved_at = Column(DateTime, nullable=True)  # When ticket was resolved
+    internal_notes = Column(Text, nullable=True)  # Admin internal notes
     
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

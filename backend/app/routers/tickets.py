@@ -81,6 +81,21 @@ async def assign_ticket(ticket_id: str, payload: dict = Body(...), db: Session =
     db.commit()
     return ticket
 
+@router.patch("/{ticket_id}/notes")
+async def save_notes(ticket_id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    """Save internal notes for a ticket"""
+    notes = payload.get("notes")
+    if notes is None:
+        raise HTTPException(status_code=400, detail="Notes field is required")
+    
+    ticket = db.query(models.Ticket).filter(models.Ticket.ticket_id == ticket_id).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    
+    ticket.internal_notes = notes
+    db.commit()
+    return {"status": "success", "message": "Notes saved successfully", "ticket_id": ticket.ticket_id}
+
 @router.get("/workspace/currently-solving", response_model=List[schemas.TicketResponse])
 def get_currently_solving(admin_name: str = Query(...), db: Session = Depends(get_db)):
     """Get tickets currently being worked on by an admin"""

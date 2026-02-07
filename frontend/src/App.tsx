@@ -6,14 +6,17 @@ import {
   BarChart3, 
   Download,
   PlusCircle,
-  ShieldCheck
+  ShieldCheck,
+  User
 } from 'lucide-react';
 import Dashboard from './components/Dashboard.tsx';
 import TicketList from './components/TicketList.tsx';
 import Analytics from './components/Analytics.tsx';
 import DemoPortal from './components/DemoPortal.tsx';
 import GuardrailPanel from './components/GuardrailPanel.tsx';
+import AdminWorkspace from './components/AdminWorkspace.tsx';
 import { RaiseTicket, TrackTicket } from './components/UserPortal.tsx';
+import Login from './pages/Login.tsx';
 import { ticketService } from './services/api';
 
 function AdminLayout({ tickets, stats, fetchData }: any) {
@@ -41,6 +44,9 @@ function AdminLayout({ tickets, stats, fetchData }: any) {
             <button onClick={() => setActiveTab('analytics')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'analytics' ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}>
               <BarChart3 size={20} /> Analytics
             </button>
+            <button onClick={() => setActiveTab('workspace')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'workspace' ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}>
+              <User size={20} /> My Workspace
+            </button>
             <button onClick={() => setActiveTab('logs')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'logs' ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}>
               <ShieldCheck size={20} /> System Logs
             </button>
@@ -59,7 +65,10 @@ function AdminLayout({ tickets, stats, fetchData }: any) {
               <span className="text-sm font-medium">AI Core Online</span>
             </div>
           </div>
-          <Link to="/raise-ticket" className="text-xs font-bold text-center text-gray-400 hover:text-primary-600 transition-colors">Go to User Portal</Link>
+          <div className="flex flex-col gap-2">
+            <Link to="/raise-ticket" className="text-xs font-bold text-center text-gray-400 hover:text-primary-600 transition-colors">Go to User Portal</Link>
+            <Link to="/login" className="text-xs font-bold text-center text-gray-500 hover:text-gray-700 transition-colors">Sign Out</Link>
+          </div>
         </div>
       </aside>
 
@@ -71,6 +80,7 @@ function AdminLayout({ tickets, stats, fetchData }: any) {
               {activeTab === 'dashboard' && 'Welcome Admin'}
               {activeTab === 'tickets' && 'IT Support Tickets'}
               {activeTab === 'analytics' && 'Operational Insights'}
+              {activeTab === 'workspace' && 'My Workspace'}
               {activeTab === 'logs' && 'Guardrail Validation Logs'}
               {activeTab === 'demo' && 'User Demo Portal'}
             </h2>
@@ -88,6 +98,7 @@ function AdminLayout({ tickets, stats, fetchData }: any) {
         {activeTab === 'dashboard' && <Dashboard stats={stats} tickets={tickets.slice(0, 5)} />}
         {activeTab === 'tickets' && <TicketList tickets={tickets} />}
         {activeTab === 'analytics' && <Analytics stats={stats} />}
+        {activeTab === 'workspace' && <AdminWorkspace />}
         {activeTab === 'logs' && <GuardrailPanel tickets={tickets} />}
         {activeTab === 'demo' && <DemoPortal />}
       </main>
@@ -106,6 +117,7 @@ function UserPortalLayout({ children }: { children: React.ReactNode }) {
         <nav className="flex gap-6">
           <Link to="/raise-ticket" className="text-sm font-bold text-gray-600 hover:text-primary-600 transition-colors">Raise Issue</Link>
           <Link to="/track-ticket" className="text-sm font-bold text-gray-600 hover:text-primary-600 transition-colors">Track Status</Link>
+          <Link to="/login" className="text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors">Sign Out</Link>
         </nav>
       </div>
       {children}
@@ -138,13 +150,32 @@ function App() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 10000);
-    return () => clearInterval(interval);
+    
+    // WebSocket for real-time updates
+    const ws = new WebSocket('ws://localhost:8000/ws');
+    
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("WebSocket Message Received:", data);
+      if (data.event === "ticket_updated") {
+        // Refresh everything when a ticket is updated or created
+        fetchData();
+      }
+    };
+
+    ws.onopen = () => console.log("WebSocket Connected");
+    ws.onerror = (err) => console.error("WebSocket Error:", err);
+    ws.onclose = () => console.log("WebSocket Disconnected");
+
+    return () => ws.close();
   }, []);
 
   return (
     <BrowserRouter>
       <Routes>
+        {/* Login Route */}
+        <Route path="/login" element={<Login />} />
+        
         {/* Admin Routes */}
         <Route path="/" element={<AdminLayout tickets={tickets} stats={stats} fetchData={fetchData} />} />
         <Route path="/admin" element={<Navigate to="/" replace />} />
