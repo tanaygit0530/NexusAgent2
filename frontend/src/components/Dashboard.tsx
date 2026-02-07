@@ -27,70 +27,70 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tickets }) => {
     : tickets.filter(t => t.priority === priorityFilter);
   
   return (
-    <div className="space-y-8">
-      {/* Stats Cards */}
+    <div className="space-y-8 animate-fade-in">
+      {/* Stats Cards - Enhanced */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="bg-gradient-to-br from-white to-blue-50/30 p-6 rounded-2xl border border-blue-100/50 shadow-lg hover:shadow-xl transition-all duration-300 card-hover group">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg shadow-blue-200 group-hover:scale-110 transition-transform duration-300">
               <BarChart3 size={24} />
             </div>
-            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded-full">+12%</span>
+            <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-full shadow-sm">+12%</span>
           </div>
-          <p className="text-gray-500 text-sm font-medium">Total Tickets</p>
-          <h3 className="text-2xl font-bold text-gray-900 mt-1">{totalTickets}</h3>
+          <p className="text-gray-500 text-sm font-semibold uppercase tracking-wide">Total Tickets</p>
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mt-2">{totalTickets}</h3>
         </div>
         
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="bg-gradient-to-br from-white to-orange-50/30 p-6 rounded-2xl border border-orange-100/50 shadow-lg hover:shadow-xl transition-all duration-300 card-hover group">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-orange-50 text-orange-600 rounded-lg">
+            <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl shadow-lg shadow-orange-200 group-hover:scale-110 transition-transform duration-300">
               <Clock size={24} />
             </div>
           </div>
-          <p className="text-gray-500 text-sm font-medium">Needs Info</p>
-          <h3 className="text-2xl font-bold text-gray-900 mt-1">{stats.by_status['Waiting'] || 0}</h3>
+          <p className="text-gray-500 text-sm font-semibold uppercase tracking-wide">Needs Info</p>
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mt-2">{stats.by_status['Waiting'] || 0}</h3>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="bg-gradient-to-br from-white to-gray-50/30 p-6 rounded-2xl border border-gray-100/50 shadow-lg hover:shadow-xl transition-all duration-300 card-hover group">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-gray-50 text-gray-600 rounded-lg">
+            <div className="p-3 bg-gradient-to-br from-gray-500 to-gray-600 text-white rounded-xl shadow-lg shadow-gray-200 group-hover:scale-110 transition-transform duration-300">
               <AlertCircle size={24} />
             </div>
           </div>
-          <p className="text-gray-500 text-sm font-medium">Filtered Spam</p>
-          <h3 className="text-2xl font-bold text-gray-900 mt-1">{stats.by_status['Spam'] || 0}</h3>
+          <p className="text-gray-500 text-sm font-semibold uppercase tracking-wide">Filtered Spam</p>
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mt-2">{stats.by_status['Spam'] || 0}</h3>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="bg-gradient-to-br from-white to-green-50/30 p-6 rounded-2xl border border-green-100/50 shadow-lg hover:shadow-xl transition-all duration-300 card-hover group">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-green-50 text-green-600 rounded-lg">
+            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg shadow-green-200 group-hover:scale-110 transition-transform duration-300">
               <CheckCircle2 size={24} />
             </div>
           </div>
-          <p className="text-gray-500 text-sm font-medium">Resolved</p>
-          <h3 className="text-2xl font-bold text-gray-900 mt-1">{stats.by_status['Resolved'] || 0}</h3>
+          <p className="text-gray-500 text-sm font-semibold uppercase tracking-wide">Resolved</p>
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mt-2">{stats.by_status['Resolved'] || 0}</h3>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Tickets */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-50">
+        {/* Recent Tickets - Enhanced */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100/50 shadow-xl overflow-hidden card-hover">
+          <div className="p-6 border-b border-gray-100/50 bg-gradient-to-r from-gray-50/50 to-transparent">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-gray-900 text-lg">Recent Tickets</h3>
-              <button className="text-primary-600 text-sm font-semibold hover:text-primary-700">View All</button>
+              <h3 className="font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent text-lg">Recent Tickets</h3>
+              <button className="text-primary-600 text-sm font-bold hover:text-primary-700 hover:underline transition-all">View All →</button>
             </div>
-            {/* Priority Filter Buttons */}
+            {/* Priority Filter Buttons - Enhanced */}
             <div className="flex items-center gap-2 flex-wrap">
               <Filter size={16} className="text-gray-400" />
               {['All', 'Critical', 'High', 'Medium', 'Low'].map((priority) => (
                 <button
                   key={priority}
                   onClick={() => setPriorityFilter(priority)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 shadow-sm ${
                     priorityFilter === priority
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md shadow-primary-200'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:shadow-md'
                   }`}
                 >
                   {priority}
@@ -98,9 +98,9 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, tickets }) => {
               ))}
             </div>
           </div>
-          <div className="divide-y divide-gray-50">
-            {filteredTickets.length > 0 ? filteredTickets.map((ticket) => (
-              <div key={ticket.ticket_id} className="p-6 hover:bg-gray-50 transition-colors cursor-pointer group">
+          <div className="divide-y divide-gray-100/50">
+            {filteredTickets.length > 0 ? filteredTickets.map((ticket, index) => (
+              <div key={ticket.ticket_id} className="p-6 hover:bg-gradient-to-r hover:from-gray-50/50 hover:to-transparent transition-all duration-200 cursor-pointer group animate-slide-in-up" style={{animationDelay: `${index * 50}ms`}}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex gap-4">
                     <div className={`mt-1 p-2 rounded-lg ${

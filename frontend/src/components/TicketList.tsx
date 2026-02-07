@@ -101,16 +101,16 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden min-h-[600px]">
-      {/* Filters Header */}
-      <div className="p-6 border-b border-gray-50">
-        {/* Search Bar */}
+    <div className="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100/50 shadow-xl overflow-hidden min-h-[600px] card-hover">
+      {/* Filters Header - Enhanced */}
+      <div className="p-6 border-b border-gray-100/50 bg-gradient-to-r from-gray-50/30 to-transparent">
+        {/* Search Bar - Enhanced */}
         <div className="relative flex-1 max-w-2xl mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-400" size={18} />
           <input 
             type="text" 
             placeholder="Search tickets by ID or summary..." 
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:shadow-md"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -118,7 +118,7 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
         
         {/* Dropdown Filters */}
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Status Filter Dropdown */}
+          {/* Status Filter Dropdown - Enhanced */}
           <div className="relative">
             <button
               onClick={() => {
@@ -127,14 +127,14 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
                 setPriorityDropdownOpen(false);
                 setDepartmentDropdownOpen(false);
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all shadow-sm"
+              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 hover:shadow-md transition-all shadow-sm"
             >
-              <span className="text-xs text-gray-500 uppercase tracking-wide">Status:</span>
-              <span className="font-semibold">{filterStatus === 'All' ? 'All Status' : filterStatus}</span>
-              <ChevronDown size={16} className={`text-gray-400 transition-transform ${statusDropdownOpen ? 'rotate-180' : ''}`} />
+              <span className="text-xs text-gray-500 uppercase tracking-wide font-bold">Status:</span>
+              <span className="font-bold text-gray-900">{filterStatus === 'All' ? 'All Status' : filterStatus}</span>
+              <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${statusDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
             {statusDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 py-2 animate-fade-in">
                 {['Active', 'Under Review', 'Waiting', 'Resolved', 'Cancelled', 'Spam', 'All'].map((status) => (
                   <button
                     key={status}
@@ -142,8 +142,8 @@ const TicketList: React.FC<TicketListProps> = ({ tickets }) => {
                       setFilterStatus(status);
                       setStatusDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors ${
-                      filterStatus === status ? 'bg-primary-50 text-primary-700 font-semibold' : 'text-gray-700'
+                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-gradient-to-r hover:from-primary-50 hover:to-transparent transition-all ${
+                      filterStatus === status ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold' : 'text-gray-700 font-medium'
                     }`}
                   >
                     {status === 'All' ? 'All Status' : status}

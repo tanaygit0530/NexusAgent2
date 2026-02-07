@@ -23,35 +23,35 @@ function AdminLayout({ tickets, stats, fetchData }: any) {
   const [activeTab, setActiveTab] = useState('dashboard');
   
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row w-full font-outfit">
-      {/* Sidebar - Same logic as before but in a sub-component */}
-      <aside className="w-full md:w-64 bg-white border-r border-gray-200 flex-shrink-0">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 flex flex-col md:flex-row w-full font-outfit">
+      {/* Sidebar - Enhanced with gradients and shadows */}
+      <aside className="w-full md:w-64 bg-white/80 backdrop-blur-xl border-r border-gray-200/50 flex-shrink-0 shadow-xl">
         <div className="p-6">
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-200">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-300/50 animate-pulse-slow">
               <LayoutDashboard size={24} />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">NexusAgent</h1>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-tight">NexusAgent</h1>
           </div>
           
           <nav className="space-y-1">
-            <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'dashboard' ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}>
+            <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'dashboard' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-200' : 'text-gray-600 hover:bg-gray-50 hover:shadow-md'}`}>
               <LayoutDashboard size={20} /> Overview
             </button>
-            <button onClick={() => setActiveTab('tickets')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'tickets' ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}>
+            <button onClick={() => setActiveTab('tickets')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'tickets' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-200' : 'text-gray-600 hover:bg-gray-50 hover:shadow-md'}`}>
               <Ticket size={20} /> Tickets
             </button>
-            <button onClick={() => setActiveTab('analytics')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'analytics' ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}>
+            <button onClick={() => setActiveTab('analytics')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'analytics' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-200' : 'text-gray-600 hover:bg-gray-50 hover:shadow-md'}`}>
               <BarChart3 size={20} /> Analytics
             </button>
-            <button onClick={() => setActiveTab('workspace')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'workspace' ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}>
+            <button onClick={() => setActiveTab('workspace')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'workspace' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-200' : 'text-gray-600 hover:bg-gray-50 hover:shadow-md'}`}>
               <User size={20} /> My Workspace
             </button>
-            <button onClick={() => setActiveTab('logs')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'logs' ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50'}`}>
+            <button onClick={() => setActiveTab('logs')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'logs' ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-200' : 'text-gray-600 hover:bg-gray-50 hover:shadow-md'}`}>
               <ShieldCheck size={20} /> System Logs
             </button>
             <div className="pt-4 mt-4 border-t border-gray-100">
-               <button onClick={() => setActiveTab('demo')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === 'demo' ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50'}`}>
+               <button onClick={() => setActiveTab('demo')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${activeTab === 'demo' ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg shadow-green-200' : 'text-gray-600 hover:bg-gray-50 hover:shadow-md'}`}>
                 <PlusCircle size={20} /> Raise Issue (Demo)
               </button>
             </div>
